@@ -9,24 +9,16 @@ import SwiftUI
 import SwiftData
 
 @main
-struct SeenApp: App {
-    var sharedModelContainer: ModelContainer = {
-        let schema = Schema([
-            Item.self,
-        ])
-        let modelConfiguration = ModelConfiguration(schema: schema, isStoredInMemoryOnly: false)
-
-        do {
-            return try ModelContainer(for: schema, configurations: [modelConfiguration])
-        } catch {
-            fatalError("Could not create ModelContainer: \(error)")
-        }
-    }()
+struct MoviApp: App {
+    let persistenceController = PersistenceController.shared
 
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            BrowseView()
+                .environment(\.font, Font.inter())
+                .environment(\.managedObjectContext, persistenceController.container.viewContext)
+                .background(SystemColors.backgroundColor)
+                .preferredColorScheme(.dark)
         }
-        .modelContainer(sharedModelContainer)
     }
 }
