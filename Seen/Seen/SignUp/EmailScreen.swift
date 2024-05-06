@@ -64,20 +64,20 @@ struct EmailScreen: View {
                     }
                     .frame(width: geometry.size.width)
                     
-                    if isEmailValid() {
-                        NavigationLink {
-                            PasswordScreen(email: Email)
-                        } label: {
-                            Text("Next")		
-                                .frame(width: 100, height: 55)
-                                .background(SystemColors.accentColor)
-                                .foregroundColor(.white)
-                                .cornerRadius(10)
-                                .padding(.top, 20)
-                                .padding(.leading,270)
-                            
-                        }
-                    }
+                    
+                    NavigationLink {
+                        PasswordScreen(email: Email)
+                    } label: {
+                        Text("Next")
+                            .frame(width: 350, height: 60)
+                            .background(isEmailValid() ? SystemColors.accentColor : .gray)
+                            .foregroundColor(.white)
+                            .cornerRadius(10)
+                            .padding(.top, 20)
+                            .padding(.leading,20)
+                        
+                    }.disabled(!isEmailValid())
+                    
                     Spacer()
   
                 } // VStack 1

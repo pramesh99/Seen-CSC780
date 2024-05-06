@@ -6,9 +6,12 @@
 //
 
 import SwiftUI
+import Firebase
 
 struct ProfileScreen: View {
-    var isUsernameValid: Bool = false
+    @State var isUsernameValid: Bool = false
+    @State var isDocumentAdded: Bool = false
+
     @StateObject private var UsernameValidate = DebounceTextFieldModel()
     
     let email: String
@@ -25,7 +28,7 @@ struct ProfileScreen: View {
                         VStack(alignment: .leading){
                             Text("4/4")
                                 .opacity(0.4)
-                            Text("Create your profile")
+                            Text("Create your username")
                                 .textInputAutocapitalization(.words)
                                 .font(.largeTitle)
                                 .fontWeight(.bold)
@@ -38,7 +41,7 @@ struct ProfileScreen: View {
                     }
                     
                     Form {
-                        Section(/*header: (Text("Username").font(.system(size: 16)).fontWeight(.semibold) + Text("*").foregroundColor(.red))*/) {
+                        Section() {
                             ZStack (alignment: .leading){
                                 if UsernameValidate.inputText.isEmpty {
                                     (Text("Enter username") + Text("*").foregroundColor(.red))
@@ -50,37 +53,53 @@ struct ProfileScreen: View {
                                     .frame(height: 40)
                                     .overlay(RoundedRectangle(cornerRadius: 8.0).strokeBorder(Color.white, style: StrokeStyle(lineWidth: 1.0)).frame(width: 350, height: 60)
                                 )
-                                .onChange(of: UsernameValidate.debouncedText, perform: validateUsername)
-                                
+                                    .onChange(of: UsernameValidate.debouncedText) { newValue in
+                                        Task {
+                                            do {
+                                                try await validateUsername()
+                                            } catch {
+                                                print("Error: \(error)")
+                                            }
+                                        }
+                                    }
                             }
-                            .listRowBackground(SystemColors.backgroundColor)
                             
+                            HStack{
+                                if !UsernameValidate.debouncedText.isEmpty && isUsernameValid{
+                                    Image(systemName: "checkmark").foregroundColor(.green.opacity(0.8))
+                                    Text("Username is available!").foregroundColor(.green.opacity(0.8))
+                                } else if !UsernameValidate.debouncedText.isEmpty && !isUsernameValid{
+                                    Image(systemName: "xmark").foregroundColor(.red.opacity(0.8))
+                                    Text("Username is taken").foregroundColor(.red.opacity(0.8))
+                                }
+                            }
                         }
-//                        .headerProminence(.increased)
-                        .textCase(nil)
+                        .listRowBackground(SystemColors.backgroundColor)
+                        .textInputAutocapitalization(.never)
                     }
                     .background(Color.clear)
                     .scrollContentBackground(.hidden)
                     .tint(SystemColors.accentColor)
                     .offset(y:80)
                     
-                    Text("Test text")
+//                    Text(UsernameValidate.debouncedText)
+//                    Text(String(isUsernameValid))
                     
                     VStack{
-                        NavigationLink {
-//                                Template()
-                            } label: {
-                                Text("Next")
-                                    .fontWeight(.bold)
-                                    .frame(width: 350, height: 60)
-                                    .background(isUsernameValid ? Color(hex: 0xF04650) : .gray)
-                                    .foregroundColor(.white)
-                                    .cornerRadius(10)
-                                    
-                            }
+                        NavigationLink(destination: TitleScreen(), isActive: $isDocumentAdded){ // CHANGE DESTINATION
+                            
+                            Text("Submit")
+                                .fontWeight(.bold)
+                                .frame(width: 350, height: 60)
+                                .background(isUsernameValid ? SystemColors.accentColor : .gray)
+                                .foregroundColor(.white)
+                                .cornerRadius(10)
+                            
+                        }
                             .frame(maxWidth: .infinity, alignment: .center)
+                            .offset(y:-10)
                             .simultaneousGesture(TapGesture().onEnded{
-                                FinishHandler()
+                                SubmitHandler()
                             })
                             .disabled(!isUsernameValid)
                         
@@ -95,18 +114,41 @@ struct ProfileScreen: View {
             .frame(maxWidth: .infinity, alignment: .top)
         }
         .navigationBarBackButtonHidden(true) // Hide the default back button
-//        .navigationBarItems(leading: CustomBackButton())
     }
     
-    private func validateUsername(userName: String) -> Void {
-        //check if username has naughty characters swift has cleanser
-        // send debounced text to DB
-        print("Chceking if username: \(userName) is valid")
-        // if valid change isUsernameValid
+    private func validateUsername() async throws -> Void {
+        if UsernameValidate.debouncedText != "" {
+            let usersCollection = Firestore.firestore().collection("users")
+            let snapshot = try await usersCollection.whereField("username", isEqualTo: UsernameValidate.debouncedText).getDocuments()
+            isUsernameValid = snapshot.documents.isEmpty
+        } else {
+            isUsernameValid = false
+        }
     }
     
-    private func FinishHandler(){
+    private func SubmitHandler() -> Void {
         print("Sending user data to DB. if \(UsernameValidate.debouncedText) is valid.")
+        addDocument()
+
+    }
+    
+    private func addDocument() -> Void {
+        let usersCollection = Firestore.firestore().collection("users")
+        let userData = [
+            "name": name,
+            "email": email,
+            "pwd": pwd,
+            "username": UsernameValidate.debouncedText
+        ]
+
+        usersCollection.addDocument(data: userData) { error in
+            if let error = error {
+                // display error message
+                print("Error: \(error)")
+            } else {
+                isDocumentAdded = true
+            }
+        }
     }
 }
 

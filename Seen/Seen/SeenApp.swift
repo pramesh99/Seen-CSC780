@@ -7,11 +7,15 @@
 
 import SwiftUI
 import SwiftData
+import Firebase
 
 @main
 struct MoviApp: App {
     let persistenceController = PersistenceController.shared
-
+    init() {
+        FirebaseApp.configure()
+    }
+    
     var body: some Scene {
         WindowGroup {
             BrowseView()

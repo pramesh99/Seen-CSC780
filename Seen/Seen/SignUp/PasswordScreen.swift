@@ -80,7 +80,7 @@ struct PasswordScreen: View {
                     }
                     .font(.system(size: 13))
                     .padding(.leading,24)
-                    .offset(y:-160)
+                    .offset(y:-150)
                     
                     VStack{
                         NavigationLink {
