@@ -105,7 +105,7 @@ struct ProfileScreen: View {
                         
                         Spacer()
                     }
-                    .offset(y:-100)
+                    .offset(y:-120)
                     
                 }
                 

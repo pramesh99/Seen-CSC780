@@ -52,7 +52,7 @@ struct TitleScreen: View {
               
                         
                     NavigationLink {
-                            EmailScreen()
+                            SignIn()
                         } label: {
                             Text("I already have an account")
                                 .frame(width: 350, height: 60)

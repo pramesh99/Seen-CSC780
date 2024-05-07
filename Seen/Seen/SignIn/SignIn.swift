@@ -7,12 +7,17 @@
 
 import SwiftUI
 import Foundation
+import CryptoKit
+import Firebase
 
 struct SignIn: View {
     @Environment(\.dismiss) var dismiss
     
     @State var Email: String = ""
     @State var Pwd: String = ""
+    @State var HashPwd: String = ""
+    @State var EmailNotValid: Bool = false
+    @State var PwdNotValid: Bool = false
     
     var body: some View {
             ZStack{
@@ -64,7 +69,7 @@ struct SignIn: View {
                                     .overlay(RoundedRectangle(cornerRadius: 8.0).strokeBorder(Color.white, style: StrokeStyle(lineWidth: 1.0)).frame(width: 350, height: 60))
                             }
                             .listRowBackground(SystemColors.backgroundColor)
-                            .padding(.top, 20)
+                            .padding(.top, 10)
                         }
                         .textCase(nil)
                     }
@@ -88,13 +93,23 @@ struct SignIn: View {
                             .frame(maxWidth: .infinity, alignment: .center)
                             .simultaneousGesture(TapGesture().onEnded{
                                 //dont think i need this
-                                submitNameHandler()
+                                submitHandler()
                             })
                             .disabled(!isInfoValid())
                         
+                        if EmailNotValid {
+                            Text("Email is not Valid. Please check spelling or sign up.").foregroundStyle(.red)
+                        }
+                        
+                        if PwdNotValid {
+                            Text("Password is incorrect.").foregroundStyle(.red)
+                        }
+                        
                         Spacer()
+                        
+                        
                     }
-                    .offset(y:-60)
+                    .offset(y:-40)
                 }
             }
             .foregroundColor(Color.white)
@@ -115,8 +130,40 @@ struct SignIn: View {
         return !Email.isEmpty && !Pwd.isEmpty
     }
     
-    private func submitNameHandler(){
-        print("Email: \(Email) is valid!")
+    private func submitHandler(){
+        Task {
+            do {
+                try await authenticate()
+            } catch {
+                print("Error: \(error)")
+            }
+            
+        }
+    }
+    
+    private func authenticate() async throws -> Void {
+        //hash password
+        let data = Data(Pwd.utf8)
+        let hashed = SHA256.hash(data: data)
+        HashPwd = hashed.compactMap {String(format: "%02x", $0)}.joined()
+        
+        // Cases: email does not exist. Sign up
+//                Password is incorrect
+        
+        let usersCollection = Firestore.firestore().collection("users")
+        let snapshot = try await usersCollection.whereField("email", isEqualTo: Email).getDocuments()
+        let doc = snapshot.documents[0].data()
+        
+        if doc["email"] as! String != Email{
+            // return Email is not valid, break?
+            EmailNotValid = true
+        } else if HashPwd.isEqual(doc["pwd"]) {
+            // return pwd is incorrect, break?
+            PwdNotValid = true
+        }
+        
+        // authenticated
+        
     }
 }
 
