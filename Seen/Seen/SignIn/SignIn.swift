@@ -18,6 +18,7 @@ struct SignIn: View {
     @State var HashPwd: String = ""
     @State var EmailNotValid: Bool = false
     @State var PwdNotValid: Bool = false
+    @State var shouldNavigate: Bool = false
     
     var body: some View {
             ZStack{
@@ -34,8 +35,6 @@ struct SignIn: View {
                         .frame(maxWidth: .infinity, alignment: .leading)
                         .padding(20)
                         .offset(y:120)
-                        
-                        
                     }
                     
                     Form {
@@ -79,23 +78,50 @@ struct SignIn: View {
                     .offset(y:80)
                     
                     VStack{
-                        NavigationLink {
-//                            ProfileScreen(email: Email, name: Pwd) //CHANGE TARGET
-                            } label: {
+//                        NavigationLink {
+//                            TitleScreen()
+//                            } label: {
+//                                Text("Submit")
+//                                    .fontWeight(.bold)
+//                                    .frame(width: 350, height: 60)
+//                                    .background(isInfoValid() ? SystemColors.accentColor : .gray)
+//                                    .foregroundColor(.white)
+//                                    .cornerRadius(10)
+//                                    
+//                            }
+//                            .frame(maxWidth: .infinity, alignment: .center)
+//                            .simultaneousGesture(TapGesture().onEnded{
+//                                submitHandler()
+//                            })
+//                            .disabled(!isInfoValid())
+                        
+                        if shouldNavigate {
+                            NavigationLink(destination: TitleScreen()) {
+                                Text("Submit")
+                                    .fontWeight(.bold)
+                                    .frame(width: 350, height: 60)
+                                    .background(SystemColors.accentColor)
+                                    .foregroundColor(.white)
+                                    .cornerRadius(10)
+                            }
+                            .frame(maxWidth: .infinity, alignment: .center)
+                        } else {
+                            Button(action: {
+                                if isInfoValid() {
+                                    shouldNavigate = true
+                                }
+                                submitHandler()
+                            }) {
                                 Text("Submit")
                                     .fontWeight(.bold)
                                     .frame(width: 350, height: 60)
                                     .background(isInfoValid() ? SystemColors.accentColor : .gray)
                                     .foregroundColor(.white)
                                     .cornerRadius(10)
-                                    
                             }
                             .frame(maxWidth: .infinity, alignment: .center)
-                            .simultaneousGesture(TapGesture().onEnded{
-                                //dont think i need this
-                                submitHandler()
-                            })
                             .disabled(!isInfoValid())
+                        }
                         
                         if EmailNotValid {
                             Text("Email is not Valid. Please check spelling or sign up.").foregroundStyle(.red)
@@ -104,7 +130,7 @@ struct SignIn: View {
                         if PwdNotValid {
                             Text("Password is incorrect.").foregroundStyle(.red)
                         }
-                        
+//                        Text("test")
                         Spacer()
                         
                         
@@ -142,28 +168,34 @@ struct SignIn: View {
     }
     
     private func authenticate() async throws -> Void {
+        EmailNotValid = false
+        PwdNotValid = false
+        
         //hash password
         let data = Data(Pwd.utf8)
         let hashed = SHA256.hash(data: data)
         HashPwd = hashed.compactMap {String(format: "%02x", $0)}.joined()
         
-        // Cases: email does not exist. Sign up
-//                Password is incorrect
-        
         let usersCollection = Firestore.firestore().collection("users")
         let snapshot = try await usersCollection.whereField("email", isEqualTo: Email).getDocuments()
-        let doc = snapshot.documents[0].data()
-        
-        if doc["email"] as! String != Email{
-            // return Email is not valid, break?
+
+        if !snapshot.documents.isEmpty{
+            let doc = snapshot.documents[0].data()
+//            let unwrappedEmail = doc["email"]  ?? ""
+            let unwrappedPwd = doc["pwd"] ?? ""
+//            print(unwrappedPwd)
+//            print(unwrappedEmail)
+            if !HashPwd.isEqual(unwrappedPwd as! String) {
+                PwdNotValid = true
+            }
+        } else {
             EmailNotValid = true
-        } else if HashPwd.isEqual(doc["pwd"]) {
-            // return pwd is incorrect, break?
-            PwdNotValid = true
         }
-        
         // authenticated
-        
+        if !EmailNotValid && !PwdNotValid {
+            shouldNavigate = true
+        }
+        print("AUTHENTICATED")
     }
 }
 

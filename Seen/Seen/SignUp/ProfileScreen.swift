@@ -9,6 +9,8 @@ import SwiftUI
 import Firebase
 
 struct ProfileScreen: View {
+    @Environment(\.dismiss) var dismiss
+    
     @State var isUsernameValid: Bool = false
     @State var isDocumentAdded: Bool = false
 
@@ -105,7 +107,7 @@ struct ProfileScreen: View {
                         
                         Spacer()
                     }
-                    .offset(y:-120)
+                    .offset(y:-80)
                     
                 }
                 
@@ -114,6 +116,15 @@ struct ProfileScreen: View {
             .frame(maxWidth: .infinity, alignment: .top)
         }
         .navigationBarBackButtonHidden(true) // Hide the default back button
+        .toolbar{
+            ToolbarItem(placement: .navigationBarLeading) {
+                Button {
+                    dismiss()
+                } label: {
+                    Image("Back")
+                }
+            }
+        }
     }
     
     private func validateUsername() async throws -> Void {

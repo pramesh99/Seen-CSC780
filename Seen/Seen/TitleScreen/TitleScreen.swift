@@ -7,16 +7,6 @@
 
 import SwiftUI
 
-// set app colors to environment colors
-extension Color {
-    init(hex: UInt) {
-        let red = Double((hex >> 16) & 0xFF) / 255.0
-        let green = Double((hex >> 8) & 0xFF) / 255.0
-        let blue = Double(hex & 0xFF) / 255.0
-        self.init(red: red, green: green, blue: blue)
-    }
-}
-
 struct TitleScreen: View {
     var body: some View {
         NavigationStack{
@@ -74,21 +64,6 @@ struct TitleScreen: View {
         
     }
 }
-
-//struct CustomBackButton: View {
-//    @Environment(\.presentationMode) var presentationMode
-//
-//    var body: some View {
-//        Button(action: {
-//            self.presentationMode.wrappedValue.dismiss()
-//        }) {
-//            Image(systemName: "chevron.backward")
-//                .imageScale(.large)
-//                .foregroundColor(.white)
-//
-//        }
-//    }
-//}
 
 struct TitleScreen_Previews: PreviewProvider {
     static var previews: some View {
