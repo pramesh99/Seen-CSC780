@@ -56,6 +56,8 @@ struct TitleScreen: View {
                         }
                         .offset(y:-100)
                     
+                    Text("\(UserDefaults.standard.string(forKey: "userID") ?? "No userID")").foregroundStyle(.white)
+                    
                 }
             }
         }

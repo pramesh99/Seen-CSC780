@@ -64,7 +64,7 @@ struct NameScreen: View {
                     
                     VStack{
                         NavigationLink {
-                            ProfileScreen(email: email, pwd: pwd, name: Name)
+                            UsernameScreen(email: email, pwd: pwd, name: Name)
                             } label: {
                                 Text("Next")
                                     .fontWeight(.bold)

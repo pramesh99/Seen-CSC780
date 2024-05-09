@@ -39,14 +39,14 @@ struct BrowseView: View {
         }
     }
     
-    private func populateOMDBQuery(into movie: MovieDetailsModel) {
+    private func populateOMDBQuery(into movie: MovieDetailsModel, withoutYear: Bool = false) {
         /**
          * TODO: Make a server call instead which then calls the OMDB API
          */
         
-        let escapedQuery = movie.title.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
+        let escapedQuery = movie.originalTitle.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
         
-        var request = URLRequest(url: URL(string: "https://www.omdbapi.com/?apikey=\(APIKeys.omdb.rawValue)&type=movie&plot=short&t=\(escapedQuery!)&y=\(movie.releaseYear!)")!,
+        var request = URLRequest(url: URL(string: "https://www.omdbapi.com/?apikey=\(APIKeys.omdb.rawValue)&type=movie&plot=short&t=\(escapedQuery!)\(withoutYear ? "" : "&y=\(movie.releaseYear!)")")!,
                                  cachePolicy: .useProtocolCachePolicy,
                                  timeoutInterval: 10.0)
         request.httpMethod = "GET"
@@ -70,7 +70,11 @@ struct BrowseView: View {
                     let successfulAppend = movie.append(fromOMDB: result)
                     if successfulAppend != 1 {
                         if successfulAppend == 0 {
-                            fatalError("OMDB data was improper")
+                            if withoutYear {
+                                fatalError("ODMB data was improper")
+                                return
+                            }
+                            populateOMDBQuery(into: movie, withoutYear: true)
                         }
                         fatalError("Unable to process OMDB data")
                     }

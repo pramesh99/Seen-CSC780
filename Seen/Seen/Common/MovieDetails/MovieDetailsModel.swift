@@ -23,10 +23,12 @@ class MovieDetailsModel: ObservableObject, Identifiable {
     var mainCast: String!
     var plot: String!
     var imdbURL: String!
+    var originalTitle: String!
     
     init?(fromTDMBSearch movieJSON: Dictionary<String, Any>) {
         guard let id = movieJSON["id"] as? Int,
               let title = movieJSON["title"] as? String,
+              let originalTitle = movieJSON["original_title"] as? String,
               let pURL = createTmdbURL(withPath: movieJSON["poster_path"] as? String),
               let releaseDate = movieJSON["release_date"] as? String else {
             return nil
@@ -36,6 +38,7 @@ class MovieDetailsModel: ObservableObject, Identifiable {
         self.title = title
         self.posterURL = pURL
         self.releaseYear = String(releaseDate.prefix(4))
+        self.originalTitle = originalTitle
         
         if let bURL = createTmdbURL(withPath: movieJSON["backdrop_path"] as? String) {
             self.backdropURL = bURL

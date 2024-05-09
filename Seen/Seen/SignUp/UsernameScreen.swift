@@ -1,5 +1,5 @@
 //
-//  ProfileScreen.swift
+//  UsernameScreen.swift
 //  Seen
 //
 //  Created by Preetham Ramesh on 4/30/24.
@@ -8,7 +8,7 @@
 import SwiftUI
 import Firebase
 
-struct ProfileScreen: View {
+struct UsernameScreen: View {
     @Environment(\.dismiss) var dismiss
     
     @State var isUsernameValid: Bool = false
@@ -38,8 +38,6 @@ struct ProfileScreen: View {
                         .frame(maxWidth: .infinity, alignment: .leading)
                         .padding(20)
                         .offset(y:120)
-                        
-                        
                     }
                     
                     Form {
@@ -145,27 +143,35 @@ struct ProfileScreen: View {
     
     private func addDocument() -> Void {
         let usersCollection = Firestore.firestore().collection("users")
-        let userData = [
+        let userData: [String: Any] = [
             "name": name,
             "email": email,
             "pwd": pwd,
             "username": UsernameValidate.debouncedText
         ]
-
-        usersCollection.addDocument(data: userData) { error in
+        
+        var docID: DocumentReference? = nil
+        docID = usersCollection.addDocument(data: userData) { error in
             if let error = error {
                 // display error message
                 print("Error: \(error)")
             } else {
                 isDocumentAdded = true
+                if let userID = docID?.documentID {
+                    print("\(userID)")
+                    UserDefaults.standard.set(userID, forKey: "userID")
+                } else {
+                    print("No document ID")
+                }
+                
             }
         }
     }
 }
 
-struct ProfileScreen_Previews: PreviewProvider {
+struct UsernameScreen_Previews: PreviewProvider {
     static var previews: some View {
-        ProfileScreen(email: "pr123@gmail.com", pwd: "strongpwd", name: "P R")
+        UsernameScreen(email: "pr123@gmail.com", pwd: "strongpwd", name: "P R")
     }
 }
 

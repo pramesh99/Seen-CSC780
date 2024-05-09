@@ -96,7 +96,7 @@ struct SignIn: View {
 //                            .disabled(!isInfoValid())
                         
                         if shouldNavigate {
-                            NavigationLink(destination: TitleScreen()) {
+                            NavigationLink(destination: ProfileScreen()) {
                                 Text("Submit")
                                     .fontWeight(.bold)
                                     .frame(width: 350, height: 60)
@@ -171,6 +171,10 @@ struct SignIn: View {
         EmailNotValid = false
         PwdNotValid = false
         
+        var docID: String = ""
+        var name: String = ""
+        var username: String = ""
+        
         //hash password
         let data = Data(Pwd.utf8)
         let hashed = SHA256.hash(data: data)
@@ -181,10 +185,10 @@ struct SignIn: View {
 
         if !snapshot.documents.isEmpty{
             let doc = snapshot.documents[0].data()
-//            let unwrappedEmail = doc["email"]  ?? ""
+            docID = snapshot.documents[0].documentID
+//            name = doc["name"]
+//            username = doc["username"]
             let unwrappedPwd = doc["pwd"] ?? ""
-//            print(unwrappedPwd)
-//            print(unwrappedEmail)
             if !HashPwd.isEqual(unwrappedPwd as! String) {
                 PwdNotValid = true
             }
@@ -194,8 +198,12 @@ struct SignIn: View {
         // authenticated
         if !EmailNotValid && !PwdNotValid {
             shouldNavigate = true
+            UserDefaults.standard.set(docID, forKey: "userID")
+            UserDefaults.standard.set(name, forKey: "name")
+            print("AUTHENTICATED")
         }
-        print("AUTHENTICATED")
+        
+        
     }
 }
 
