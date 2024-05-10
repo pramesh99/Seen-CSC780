@@ -11,7 +11,7 @@ class MovieDetailsModel: ObservableObject, Identifiable {
     var id: String!
     var posterURL: String!
     var title: String!
-    var releaseYear: String!
+    var releaseYear: String!	
     
     var backdropURL: String!
     

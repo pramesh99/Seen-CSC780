@@ -7,8 +7,71 @@
 
 import SwiftUI
 
+struct LogoutConfirmationModal: View {
+    @Binding var isModalPresented: Bool
+    
+    var body: some View {
+        ZStack{
+            SystemColors.imageBackgroundColor
+                .edgesIgnoringSafeArea(.all)
+            
+            VStack {
+                Text("Are you sure you want to log out?")
+                    .font(.title)
+                    .foregroundStyle(.white)
+                    .multilineTextAlignment(.center)
+                    .padding()
+                
+                HStack {
+                    Spacer()
+                    Button("Cancel") {
+                        // Dismiss the modal
+                        isModalPresented = false
+                    }
+                    .fontWeight(.bold)
+                    .frame(maxWidth: .infinity, alignment: .center)
+                   
+                    NavigationLink {
+                        TitleScreen()
+                    } label: {
+                        Text("Log out")
+                            .fontWeight(.bold)
+                            .frame(height: 60)
+                            .frame(maxWidth: 150)
+                            .background(SystemColors.accentColor)
+                            .foregroundColor(.white)
+                            .cornerRadius(10)
+
+                    }
+                    .frame(maxWidth: .infinity, alignment: .trailing)
+                    .simultaneousGesture(TapGesture().onEnded{
+                        isModalPresented = false
+                        // change to log out handler
+//                        submitHandler()
+                    })
+                
+                    Spacer()
+                }
+                
+            }
+            .cornerRadius(10)
+            .padding()
+
+        }
+    }
+}
+
+private func logOutHandler() {
+    // clear userDefault stuff
+    UserDefaults.standard.removeObject(forKey: "userID")
+    UserDefaults.standard.removeObject(forKey: "name")
+    UserDefaults.standard.removeObject(forKey: "username")
+    // add other stuff such as 
+}
+
 struct ProfileScreen: View {
     @Environment(\.dismiss) var dismiss
+    @State private var isModalPresented = false
     
     var body: some View {
         NavigationStack{
@@ -16,6 +79,20 @@ struct ProfileScreen: View {
                 SystemColors.backgroundColor
                     .ignoresSafeArea()
                 VStack{ //MAINSTACK
+                    HStack {
+                        Spacer()
+                        Button(action: {
+                            isModalPresented = true
+                        }) {
+                            Image(systemName: "rectangle.portrait.and.arrow.forward")
+                                .foregroundColor(.red).padding(.horizontal, 20)
+                        }
+                        
+                    }.sheet(isPresented: $isModalPresented, content: {
+                        LogoutConfirmationModal(isModalPresented: $isModalPresented)
+                            .presentationDetents([.fraction(0.3)])
+                    })
+                    
                     HStack{
                         Image(systemName: "person.circle")
                             .resizable()
@@ -29,12 +106,12 @@ struct ProfileScreen: View {
                                 .foregroundColor(.white)
                                 .padding(.leading, 20)
                             
-                            Text("@"+"\(UserDefaults.standard.string(forKey: "username") ?? "jdoe")")
+                            Text("@"+"\(UserDefaults.standard.string(forKey: "username") ?? "jdoe1")")
                                 .foregroundColor(SystemColors.accentColor)
                                 .padding(.leading, 20)
                         }
                         Spacer()
-                    }.padding(.leading, 30).padding(.top,30)
+                    }.padding(.leading, 30)
                     
                     HStack {
                         Spacer()

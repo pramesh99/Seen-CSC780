@@ -57,6 +57,7 @@
 		60C8939B2BA91511003EC191 /* SeenUITestsLaunchTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 60C8939A2BA91511003EC191 /* SeenUITestsLaunchTests.swift */; };
 		60E241912BEB1B7600FEFA36 /* ProfileScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = 60E241902BEB1B7600FEFA36 /* ProfileScreen.swift */; };
 		60E241932BEB1CD500FEFA36 /* Template.swift in Sources */ = {isa = PBXBuildFile; fileRef = 60E241922BEB1CD500FEFA36 /* Template.swift */; };
+		60E241972BEEE05D00FEFA36 /* MainView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 60E241962BEEE05D00FEFA36 /* MainView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -127,6 +128,7 @@
 		60C8939A2BA91511003EC191 /* SeenUITestsLaunchTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SeenUITestsLaunchTests.swift; sourceTree = "<group>"; };
 		60E241902BEB1B7600FEFA36 /* ProfileScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileScreen.swift; sourceTree = "<group>"; };
 		60E241922BEB1CD500FEFA36 /* Template.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Template.swift; sourceTree = "<group>"; };
+		60E241962BEEE05D00FEFA36 /* MainView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -320,6 +322,7 @@
 				6092D9612BE041BF00A5BB44 /* Persistence.swift */,
 				6092D9A42BE0597000A5BB44 /* APIKeys.swift */,
 				60E241922BEB1CD500FEFA36 /* Template.swift */,
+				60E241962BEEE05D00FEFA36 /* MainView.swift */,
 			);
 			path = Seen;
 			sourceTree = "<group>";
@@ -534,6 +537,7 @@
 				6092D97A2BE055C900A5BB44 /* MovieRowView.swift in Sources */,
 				6092D9622BE041BF00A5BB44 /* Persistence.swift in Sources */,
 				6092D96B2BE045EE00A5BB44 /* MockMovieDetailsModel.swift in Sources */,
+				60E241972BEEE05D00FEFA36 /* MainView.swift in Sources */,
 				6092D9A52BE0597000A5BB44 /* APIKeys.swift in Sources */,
 				6092D9A92BE1E87B00A5BB44 /* NameScreen.swift in Sources */,
 				6092D9722BE051C300A5BB44 /* GenreTagView.swift in Sources */,

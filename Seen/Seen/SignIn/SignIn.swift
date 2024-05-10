@@ -98,7 +98,7 @@ struct SignIn: View {
                             NavigationLink(destination: ProfileScreen()) {
                                 Text("Submit")
                                     .fontWeight(.bold)
-                                    .frame(width: 350, height: 60)
+                                    .frame(height: 60)
                                     .background(SystemColors.accentColor)
                                     .foregroundColor(.white)
                                     .cornerRadius(10)
