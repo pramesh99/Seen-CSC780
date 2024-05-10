@@ -11,7 +11,6 @@ import Firebase
 
 @main
 struct SeenApp: App {
-    // add a state called isLoggedIn
     @State private var isLoggedIn: Bool
     
     let persistenceController = PersistenceController.shared
@@ -20,22 +19,13 @@ struct SeenApp: App {
         FirebaseApp.configure()
         
         // check for userID in userdefaults and set isLoggedIn
-        print("Eval: \(UserDefaults.standard.object(forKey: "userID") != nil)")
         isLoggedIn = UserDefaults.standard.object(forKey: "userID") != nil
-        print("\(UserDefaults.standard.object(forKey: "userID") ?? "No userID")")
-        print("isLoggedIn: \(isLoggedIn)")
-        let defaults = UserDefaults.standard
-        let dict = defaults.dictionaryRepresentation()
-        
-        for (k, v) in dict {
-            print("\(k): \(v)")
-        }
+//        print("\(UserDefaults.standard.object(forKey: "userID") ?? "No userID")")
     }
     
     var body: some Scene {
-        
         WindowGroup {
-            //if isLoggedIn, go to browseview else go to title page
+            //if isLoggedIn, go to feed/browseview else go to title page
             if isLoggedIn {
                 BrowseView()
                     .environment(\.font, Font.inter())

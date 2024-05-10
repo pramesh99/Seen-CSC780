@@ -28,7 +28,6 @@ struct SignIn: View {
                     ZStack{
                         VStack(alignment: .leading){
                             Text("Sign in")
-                                .textInputAutocapitalization(.words)
                                 .font(.largeTitle)
                                 .fontWeight(.bold)
                         }
@@ -186,8 +185,8 @@ struct SignIn: View {
         if !snapshot.documents.isEmpty{
             let doc = snapshot.documents[0].data()
             docID = snapshot.documents[0].documentID
-//            name = doc["name"]
-//            username = doc["username"]
+            name = doc["name"] as! String
+            username = doc["username"] as! String
             let unwrappedPwd = doc["pwd"] ?? ""
             if !HashPwd.isEqual(unwrappedPwd as! String) {
                 PwdNotValid = true
@@ -200,6 +199,7 @@ struct SignIn: View {
             shouldNavigate = true
             UserDefaults.standard.set(docID, forKey: "userID")
             UserDefaults.standard.set(name, forKey: "name")
+            UserDefaults.standard.set(username, forKey: "username")
             print("AUTHENTICATED")
         }
         

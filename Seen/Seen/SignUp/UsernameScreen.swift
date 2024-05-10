@@ -82,8 +82,6 @@ struct UsernameScreen: View {
                     .tint(SystemColors.accentColor)
                     .offset(y:80)
                     
-//                    Text(UsernameValidate.debouncedText)
-//                    Text(String(isUsernameValid))
                     
                     VStack{
                         NavigationLink(destination: TitleScreen(), isActive: $isDocumentAdded){ // CHANGE DESTINATION
@@ -160,6 +158,8 @@ struct UsernameScreen: View {
                 if let userID = docID?.documentID {
                     print("\(userID)")
                     UserDefaults.standard.set(userID, forKey: "userID")
+                    UserDefaults.standard.set(name, forKey: "name")
+                    UserDefaults.standard.set(UsernameValidate.debouncedText, forKey: "username")
                 } else {
                     print("No document ID")
                 }
