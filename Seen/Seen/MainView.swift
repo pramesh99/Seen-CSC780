@@ -10,18 +10,41 @@ import SwiftUI
 struct MainView: View {
     @Environment(\.dismiss) var dismiss
     
+    init() {
+        UITabBar.appearance().unselectedItemTintColor = UIColor.white.withAlphaComponent(0.7)
+        let tabBarAppearance = UITabBarAppearance()
+        tabBarAppearance.configureWithOpaqueBackground()
+        tabBarAppearance.backgroundColor = UIColor(SystemColors.backgroundColor)
+        UITabBar.appearance().scrollEdgeAppearance = tabBarAppearance
+        UITabBar.appearance().standardAppearance = tabBarAppearance
+    }
+    
     var body: some View {
-        NavigationStack{
-            ZStack{
-                SystemColors.backgroundColor
-                    .ignoresSafeArea()
-                VStack{//MAINSTACK
-                    Text("template")
-                } //MAINSTACK
-                .frame(maxHeight: .infinity, alignment: .top)
-            }
-            .foregroundColor(Color.white)
-        }
+  
+            VStack{//MAINSTACK
+                TabView{
+                    Text("Home Page")
+                        .tabItem {
+                            Image(systemName: "movieclapper")
+                            Text("Rankings")
+                        }
+                     
+                    BrowseView()
+                        .tabItem {
+                            Image(systemName: "magnifyingglass")
+                            Text("Search")
+                        }
+                    ProfileScreen()
+                       .tabItem {
+                           Image(systemName: "person")
+                           Text("Profile")
+                       }
+                }
+            } //MAINSTACK
+            .frame(maxHeight: .infinity, alignment: .top)
+        
+//        .foregroundColor(Color.white)
+        
         .navigationBarBackButtonHidden(true)
         .toolbar{
             ToolbarItem(placement: .navigationBarLeading) {
