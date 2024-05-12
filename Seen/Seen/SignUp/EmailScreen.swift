@@ -11,6 +11,7 @@ struct EmailScreen: View {
     @Environment(\.dismiss) var dismiss
     
     @State var Email: String = ""
+    var isLoggedIn: Binding<Bool>
     
     var body: some View {
         GeometryReader { geometry in
@@ -66,7 +67,7 @@ struct EmailScreen: View {
                     
                     
                     NavigationLink {
-                        PasswordScreen(email: Email)
+                        PasswordScreen(email: Email, isLoggedIn: isLoggedIn)
                     } label: {
                         Text("Next")
                             .frame(width: 350, height: 60)
@@ -110,9 +111,10 @@ struct EmailScreen: View {
 }
 
 struct EmailScreen_Previews: PreviewProvider {
+    @State static var isLoggedIn = false
     static var previews: some View {
         return NavigationStack {
-            EmailScreen()
+            EmailScreen(isLoggedIn: $isLoggedIn)
         }
     }
 }

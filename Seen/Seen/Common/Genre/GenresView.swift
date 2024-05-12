@@ -72,6 +72,7 @@ struct GenresView_Previews: PreviewProvider {
             GenresView(genres: ["Action",
                                 "Adventure",
                                 "Animation",
+                                "Biography",
                                 "Comedy",
                                 "Crime",
                                 "Documentary",

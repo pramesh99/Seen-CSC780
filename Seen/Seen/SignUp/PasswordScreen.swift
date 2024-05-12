@@ -15,6 +15,7 @@ struct PasswordScreen: View {
     
     @State private var Pwd: String = ""
     @State private var HashPwd: String = ""
+    var isLoggedIn: Binding<Bool>
     
     var body: some View {
         GeometryReader { geometry in
@@ -84,7 +85,7 @@ struct PasswordScreen: View {
                     
                     VStack{
                         NavigationLink {
-                            NameScreen(email: email, pwd: HashPwd)
+                            NameScreen(email: email, pwd: HashPwd, isLoggedIn: isLoggedIn)
                         } label: {
                             Text("Next")
                                 .fontWeight(.bold)
@@ -152,7 +153,8 @@ struct PasswordScreen: View {
 }
 
 struct PasswordScreen_Previews: PreviewProvider {
+    @State static var isLoggedIn = false
     static var previews: some View {
-        PasswordScreen(email: "pr123@gmail.com")
+        PasswordScreen(email: "pr123@gmail.com", isLoggedIn: $isLoggedIn)
     }
 }

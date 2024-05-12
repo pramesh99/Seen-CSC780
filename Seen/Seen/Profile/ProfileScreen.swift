@@ -9,7 +9,7 @@ import SwiftUI
 
 struct LogoutConfirmationModal: View {
     @Binding var isModalPresented: Bool
-    
+    var isLoggedIn: Binding<Bool>
     var body: some View {
         ZStack{
             SystemColors.imageBackgroundColor
@@ -32,7 +32,7 @@ struct LogoutConfirmationModal: View {
                     .frame(maxWidth: .infinity, alignment: .center)
                    
                     NavigationLink {
-                        TitleScreen()
+//                        TitleScreen()
                     } label: {
                         Text("Log out")
                             .fontWeight(.bold)
@@ -45,9 +45,10 @@ struct LogoutConfirmationModal: View {
                     }
                     .frame(maxWidth: .infinity, alignment: .trailing)
                     .simultaneousGesture(TapGesture().onEnded{
-                        isModalPresented = false
                         // change to log out handler
-//                        submitHandler()
+                        logOutHandler()
+                        isModalPresented = false
+                        isLoggedIn.wrappedValue = false
                     })
                 
                     Spacer()
@@ -66,13 +67,15 @@ private func logOutHandler() {
     UserDefaults.standard.removeObject(forKey: "userID")
     UserDefaults.standard.removeObject(forKey: "name")
     UserDefaults.standard.removeObject(forKey: "username")
-    // add other stuff such as 
+    // add other stuff
+    //change isLoggedIn()
+    
 }
 
 struct ProfileScreen: View {
     @Environment(\.dismiss) var dismiss
     @State private var isModalPresented = false
-    
+    var isLoggedIn: Binding<Bool>
     var body: some View {
         NavigationStack{
             ZStack(alignment: .leading){
@@ -89,7 +92,7 @@ struct ProfileScreen: View {
                         }
                         
                     }.sheet(isPresented: $isModalPresented, content: {
-                        LogoutConfirmationModal(isModalPresented: $isModalPresented)
+                        LogoutConfirmationModal(isModalPresented: $isModalPresented, isLoggedIn: isLoggedIn)
                             .presentationDetents([.fraction(0.3)])
                     })
                     
@@ -190,7 +193,8 @@ struct ProfileScreen: View {
 }
 
 struct ProfileScreen_Previews: PreviewProvider {
+    @State static var isLoggedIn = true
     static var previews: some View {
-        ProfileScreen()
+        ProfileScreen(isLoggedIn: $isLoggedIn)
     }
 }

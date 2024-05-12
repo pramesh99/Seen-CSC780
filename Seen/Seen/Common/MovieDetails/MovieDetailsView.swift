@@ -26,6 +26,58 @@ struct ViewOffsetKey: PreferenceKey {
     }
 }
 
+struct RatingsModal: View {
+    @Binding var isModalPresented: Bool
+
+    var body: some View {
+        ZStack{
+            SystemColors.imageBackgroundColor
+                .edgesIgnoringSafeArea(.all)
+            
+            VStack {
+                Text("Are you sure you want to log out?")
+                    .font(.title)
+                    .foregroundStyle(.white)
+                    .multilineTextAlignment(.center)
+                    .padding()
+                
+                HStack {
+                    Spacer()
+                    Button("Cancel") {
+                        // Dismiss the modal
+                        isModalPresented = false
+                    }
+                    .fontWeight(.bold)
+                    .frame(maxWidth: .infinity, alignment: .center)
+                   
+                    NavigationLink {
+//                        TitleScreen()
+                    } label: {
+                        Text("Log out")
+                            .fontWeight(.bold)
+                            .frame(height: 60)
+                            .frame(maxWidth: 150)
+                            .background(SystemColors.accentColor)
+                            .foregroundColor(.white)
+                            .cornerRadius(10)
+
+                    }
+                    .frame(maxWidth: .infinity, alignment: .trailing)
+                    .simultaneousGesture(TapGesture().onEnded{
+                       
+                    })
+                
+                    Spacer()
+                }
+                
+            }
+            .cornerRadius(10)
+            .padding()
+
+        }
+    }
+}
+
 struct MovieDetailsView: View {
     @Environment(\.dismiss) var dismiss
     
@@ -161,6 +213,10 @@ struct MovieDetailsView: View {
                     }
                     Button {
                         // Rank
+                        Mirror(reflecting: detailsVM).children.forEach { child in
+                            guard let propertyName = child.label else { return }
+                            print("\(propertyName): \(child.value)")
+                        }
                     } label: {
                         HStack(spacing: 5) {
                             Image("Star")

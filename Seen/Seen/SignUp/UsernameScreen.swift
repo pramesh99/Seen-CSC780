@@ -13,6 +13,7 @@ struct UsernameScreen: View {
     
     @State var isUsernameValid: Bool = false
     @State var isDocumentAdded: Bool = false
+    var isLoggedIn: Binding<Bool>
 
     @StateObject private var UsernameValidate = DebounceTextFieldModel()
     
@@ -84,22 +85,33 @@ struct UsernameScreen: View {
                     
                     
                     VStack{
-                        NavigationLink(destination: TitleScreen(), isActive: $isDocumentAdded){ // CHANGE DESTINATION
-                            
+                        Button {
+                            SubmitHandler()
+                        } label: {
                             Text("Submit")
                                 .fontWeight(.bold)
                                 .frame(width: 350, height: 60)
                                 .background(isUsernameValid ? SystemColors.accentColor : .gray)
                                 .foregroundColor(.white)
                                 .cornerRadius(10)
-                            
-                        }
-                            .frame(maxWidth: .infinity, alignment: .center)
-                            .offset(y:-10)
-                            .simultaneousGesture(TapGesture().onEnded{
-                                SubmitHandler()
-                            })
-                            .disabled(!isUsernameValid)
+                        }.disabled(!isUsernameValid)
+
+//                        NavigationLink(destination: Text("title screen"), isActive: $isDocumentAdded){ // CHANGE DESTINATION
+//                            
+//                            Text("Submit")
+//                                .fontWeight(.bold)
+//                                .frame(width: 350, height: 60)
+//                                .background(isUsernameValid ? SystemColors.accentColor : .gray)
+//                                .foregroundColor(.white)
+//                                .cornerRadius(10)
+//                            
+//                        }
+//                            .frame(maxWidth: .infinity, alignment: .center)
+//                            .offset(y:-10)
+//                            .simultaneousGesture(TapGesture().onEnded{
+//                                SubmitHandler()
+//                            })
+//                            .disabled(!isUsernameValid)
                         
                         Spacer()
                     }
@@ -136,7 +148,9 @@ struct UsernameScreen: View {
     private func SubmitHandler() -> Void {
         print("Sending user data to DB. if \(UsernameValidate.debouncedText) is valid.")
         addDocument()
-
+        if isDocumentAdded {
+            isLoggedIn.wrappedValue = true
+        }
     }
     
     private func addDocument() -> Void {
@@ -160,6 +174,7 @@ struct UsernameScreen: View {
                     UserDefaults.standard.set(userID, forKey: "userID")
                     UserDefaults.standard.set(name, forKey: "name")
                     UserDefaults.standard.set(UsernameValidate.debouncedText, forKey: "username")
+                    isLoggedIn.wrappedValue = true
                 } else {
                     print("No document ID")
                 }
@@ -170,8 +185,9 @@ struct UsernameScreen: View {
 }
 
 struct UsernameScreen_Previews: PreviewProvider {
+    @State static var isLoggedIn = false
     static var previews: some View {
-        UsernameScreen(email: "pr123@gmail.com", pwd: "strongpwd", name: "P R")
+        UsernameScreen(isLoggedIn: $isLoggedIn, email: "pr123@gmail.com", pwd: "strongpwd", name: "P R")
     }
 }
 

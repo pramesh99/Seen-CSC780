@@ -14,6 +14,7 @@ struct NameScreen: View {
     let pwd: String
     
     @State private var Name: String = ""
+    var isLoggedIn: Binding<Bool>
     
     var body: some View {
             ZStack{
@@ -64,7 +65,7 @@ struct NameScreen: View {
                     
                     VStack{
                         NavigationLink {
-                            UsernameScreen(email: email, pwd: pwd, name: Name)
+                            UsernameScreen(isLoggedIn: isLoggedIn, email: email, pwd: pwd, name: Name)
                             } label: {
                                 Text("Next")
                                     .fontWeight(.bold)
@@ -118,8 +119,9 @@ struct NameScreen: View {
 }
 
 struct NameScreen_Previews: PreviewProvider {
+    @State static var isLoggedIn = false
     static var previews: some View {
-        NameScreen(email: "pr123@gmail.com", pwd: "strongpwd")
+        NameScreen(email: "pr123@gmail.com", pwd: "strongpwd", isLoggedIn: $isLoggedIn)
     }
 }
 

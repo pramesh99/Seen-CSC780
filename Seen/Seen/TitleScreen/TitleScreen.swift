@@ -8,8 +8,10 @@
 import SwiftUI
 
 struct TitleScreen: View {
+    @State private var path = NavigationPath()
+    var isLoggedIn: Binding<Bool>
     var body: some View {
-        NavigationStack{
+        NavigationStack(path: $path){
             ZStack{
                 SystemColors.backgroundColor
                     .ignoresSafeArea()
@@ -29,7 +31,7 @@ struct TitleScreen: View {
                     
                     
                     NavigationLink {
-                        EmailScreen()
+                        EmailScreen(isLoggedIn: isLoggedIn)
                         } label: {
                             Text("Create Account")
                                 .frame(width: 350, height: 60)
@@ -42,7 +44,7 @@ struct TitleScreen: View {
               
                         
                     NavigationLink {
-                            SignIn()
+                        SignIn(isLoggedIn: isLoggedIn)
                         } label: {
                             Text("I already have an account")
                                 .frame(width: 350, height: 60)
@@ -68,8 +70,9 @@ struct TitleScreen: View {
 }
 
 struct TitleScreen_Previews: PreviewProvider {
+    @State static var isLoggedIn: Bool = false
     static var previews: some View {
-        TitleScreen()
+        TitleScreen(isLoggedIn: $isLoggedIn)
     }
 }
 

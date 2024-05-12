@@ -19,8 +19,12 @@ struct SignIn: View {
     @State var EmailNotValid: Bool = false
     @State var PwdNotValid: Bool = false
     @State var shouldNavigate: Bool = false
+    @State private var path = NavigationPath()
+    
+    var isLoggedIn: Binding<Bool>
     
     var body: some View {
+        NavigationStack (path: $path){
             ZStack{
                 SystemColors.backgroundColor
                     .ignoresSafeArea()
@@ -77,50 +81,69 @@ struct SignIn: View {
                     .offset(y:80)
                     
                     VStack{
-//                        NavigationLink {
-//                            TitleScreen()
-//                            } label: {
-//                                Text("Submit")
-//                                    .fontWeight(.bold)
-//                                    .frame(width: 350, height: 60)
-//                                    .background(isInfoValid() ? SystemColors.accentColor : .gray)
-//                                    .foregroundColor(.white)
-//                                    .cornerRadius(10)
-//                                    
-//                            }
-//                            .frame(maxWidth: .infinity, alignment: .center)
-//                            .simultaneousGesture(TapGesture().onEnded{
-//                                submitHandler()
-//                            })
-//                            .disabled(!isInfoValid())
+                        //                        NavigationLink {
+                        //                            TitleScreen()
+                        //                            } label: {
+                        //                                Text("Submit")
+                        //                                    .fontWeight(.bold)
+                        //                                    .frame(width: 350, height: 60)
+                        //                                    .background(isInfoValid() ? SystemColors.accentColor : .gray)
+                        //                                    .foregroundColor(.white)
+                        //                                    .cornerRadius(10)
+                        //
+                        //                            }
+                        //                            .frame(maxWidth: .infinity, alignment: .center)
+                        //                            .simultaneousGesture(TapGesture().onEnded{
+                        //                                submitHandler()
+                        //                            })
+                        //                            .disabled(!isInfoValid())
                         
-                        if shouldNavigate {
-                            NavigationLink(destination: ProfileScreen()) {
-                                Text("Submit")
-                                    .fontWeight(.bold)
-                                    .frame(height: 60)
-                                    .background(SystemColors.accentColor)
-                                    .foregroundColor(.white)
-                                    .cornerRadius(10)
-                            }
-                            .frame(maxWidth: .infinity, alignment: .center)
-                        } else {
-                            Button(action: {
-                                if isInfoValid() {
-                                    shouldNavigate = true
-                                }
-                                submitHandler()
-                            }) {
-                                Text("Submit")
-                                    .fontWeight(.bold)
-                                    .frame(width: 350, height: 60)
-                                    .background(isInfoValid() ? SystemColors.accentColor : .gray)
-                                    .foregroundColor(.white)
-                                    .cornerRadius(10)
-                            }
-                            .frame(maxWidth: .infinity, alignment: .center)
-                            .disabled(!isInfoValid())
-                        }
+                        //                        if shouldNavigate {
+                        //                            NavigationLink(destination: MainView()) {
+                        //                                Text("Submit")
+                        //                                    .fontWeight(.bold)
+                        //                                    .frame(height: 60)
+                        //                                    .background(SystemColors.accentColor)
+                        //                                    .foregroundColor(.white)
+                        //                                    .cornerRadius(10)
+                        //                            }
+                        //                            .frame(maxWidth: .infinity, alignment: .center)
+                        //                        } else {
+                        //                            Button(action: {
+                        //                                if isInfoValid() {
+                        //                                    shouldNavigate = true
+                        //                                }
+                        //                                submitHandler()
+                        //                                Thread.sleep(forTimeInterval: 0.6)
+                        ////                                NavigationLink(destination: MainView())
+                        //                            }) {
+                        //                                Text("Submit")
+                        //                                    .fontWeight(.bold)
+                        //                                    .frame(width: 350, height: 60)
+                        //                                    .background(isInfoValid() ? SystemColors.accentColor : .gray)
+                        //                                    .foregroundColor(.white)
+                        //                                    .cornerRadius(10)
+                        //                            }
+                        //                            .frame(maxWidth: .infinity, alignment: .center)
+                        //                            .disabled(!isInfoValid())
+                        //                        }
+                        
+                        Button(action: {
+                            submitHandler()
+                        }) {
+                            Text("Submit")
+                                .fontWeight(.bold)
+                                .frame(height: 60)
+                                .background(isInfoValid() ? SystemColors.accentColor : .gray)
+                                .foregroundColor(.white)
+                            .cornerRadius(10)}
+//                        }.navigationDestination(for: String.self) { view in
+//                            if isLoggedIn.wrapped {
+//                                MainView()
+////                                Text("Stuff")
+//                            }
+//                        }
+                        
                         
                         if EmailNotValid {
                             Text("Email is not Valid. Please check spelling or sign up.").foregroundStyle(.red)
@@ -129,7 +152,7 @@ struct SignIn: View {
                         if PwdNotValid {
                             Text("Password is incorrect.").foregroundStyle(.red)
                         }
-//                        Text("test")
+                        //                        Text("test")
                         Spacer()
                         
                         
@@ -138,16 +161,18 @@ struct SignIn: View {
                 }
             }
             .foregroundColor(Color.white)
-        
-        .navigationBarBackButtonHidden(true) // Hide the default back button
-        .toolbar{
-            ToolbarItem(placement: .navigationBarLeading) {
-                Button {
-                    dismiss()
-                } label: {
-                    Image("Back")
+            
+            .navigationBarBackButtonHidden(true) // Hide the default back button
+            .toolbar{
+                ToolbarItem(placement: .navigationBarLeading) {
+                    Button {
+                        dismiss()
+                    } label: {
+                        Image("Back")
+                    }
                 }
             }
+            
         }
     }
     
@@ -169,19 +194,19 @@ struct SignIn: View {
     private func authenticate() async throws -> Void {
         EmailNotValid = false
         PwdNotValid = false
-        
+        print("here")
         var docID: String = ""
         var name: String = ""
         var username: String = ""
-        
+        print("here2")
         //hash password
         let data = Data(Pwd.utf8)
         let hashed = SHA256.hash(data: data)
         HashPwd = hashed.compactMap {String(format: "%02x", $0)}.joined()
-        
+        print("here3")
         let usersCollection = Firestore.firestore().collection("users")
         let snapshot = try await usersCollection.whereField("email", isEqualTo: Email).getDocuments()
-
+        print("here4")
         if !snapshot.documents.isEmpty{
             let doc = snapshot.documents[0].data()
             docID = snapshot.documents[0].documentID
@@ -194,13 +219,16 @@ struct SignIn: View {
         } else {
             EmailNotValid = true
         }
+        print("here5")
         // authenticated
         if !EmailNotValid && !PwdNotValid {
-            shouldNavigate = true
             UserDefaults.standard.set(docID, forKey: "userID")
             UserDefaults.standard.set(name, forKey: "name")
             UserDefaults.standard.set(username, forKey: "username")
             print("AUTHENTICATED")
+            shouldNavigate = true
+            path.append("MainView")
+            isLoggedIn.wrappedValue = true
         }
         
         
@@ -208,7 +236,8 @@ struct SignIn: View {
 }
 
 struct SignIn_Previews: PreviewProvider {
+    @State static var isLoggedIn = false
     static var previews: some View {
-        SignIn()
+        SignIn(isLoggedIn: $isLoggedIn)
     }
 }

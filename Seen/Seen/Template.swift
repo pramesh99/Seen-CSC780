@@ -1,6 +1,6 @@
 //
 //  Template.swift
-//  Movi
+//  Seen
 //
 //  Created by Preetham Ramesh on 9/27/23.
 //
