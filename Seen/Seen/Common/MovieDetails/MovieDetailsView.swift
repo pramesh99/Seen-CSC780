@@ -178,7 +178,7 @@ struct MovieDetailsView: View {
                     }
                 }
                 .overlay(alignment: .bottom) {
-                    MovieRowView(movieDetailsVM: detailsVM, viewState: .detail())
+                    MovieRowView(movieDetailsVM: detailsVM, viewState: .detail(), rating: 5.8)
                         .padding(.bottom, 16)
                         .background(
                             GeometryReader { proxy in

@@ -25,7 +25,7 @@ struct BrowseView: View {
                     VStack {
                         ForEach(searchResults) { movie in
                             NavigationLink(destination: MovieDetailsView(detailsVM: .constant(movie))) {
-                                MovieRowView(movieDetailsVM: movie, viewState: .search())
+                                MovieRowView(movieDetailsVM: movie, viewState: .search(), rating: 5.8)
                             }
                             .simultaneousGesture(TapGesture().onEnded({ _ in
                                 populateOMDBQuery(into: movie)

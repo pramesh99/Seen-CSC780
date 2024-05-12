@@ -12,8 +12,13 @@ struct Feed: View {
     @Environment(\.dismiss) var dismiss
     //state array of movieDetailModels
     @State private var rankings: [MovieDetailsModel] = []
+    @State var scores: [String] = []
+    @State var iterator: Int = 0
   
     func fetchData() async {
+        rankings = []
+        scores = []
+        iterator = 0
         do {
             let ratingsCollection = Firestore.firestore().collection("Ratings")
             let snapshot = try await ratingsCollection.whereField("userID", isEqualTo: UserDefaults.standard.string(forKey: "userID") ?? "MuUwlVs578pYzwLSrsjT")
@@ -28,18 +33,16 @@ struct Feed: View {
                     "original_title": document.data()["originalTitle"] ?? "",
                     "poster_path": document.data()["posterURL"] ?? "",
                     "release_date": document.data()["releaseYear"] ?? "",
-                    "backdrop_path": document.data()["backdropURL"] ?? ""
+                    "backdrop_path": document.data()["backdropURL"] ?? "",
+                    "rating": document.data()["rating"] ?? -1.0
                 ]
-                
-                
-                
-//                print("\(movieJSON as AnyObject)")
                 
                 let mmodel = MovieDetailsModel(fromTDMBSearch: movieJSON)
 //                print("\(mmodel as AnyObject)")
                 if let mmodel = MovieDetailsModel(fromTDMBSearch: movieJSON){
                     print("here")
                     rankings.append(mmodel)
+                    scores.append(movieJSON["rating"] as! String)
                 } else {
                     print("\(mmodel as AnyObject)")
                 }
@@ -47,6 +50,7 @@ struct Feed: View {
             }
             print("Done fetching")
 //            print("\(rankings as AnyObject)")
+            print("\(scores as AnyObject)")
         } catch {
             print("Error: \(error)")
         }
@@ -75,11 +79,13 @@ struct Feed: View {
                         VStack{
                             ForEach(rankings) { movie in
                                 NavigationLink(destination: MovieDetailsView(detailsVM: .constant(movie))) {
-                                    MovieRowView(movieDetailsVM: movie, viewState: .search())
+                                    MovieRowView(movieDetailsVM: movie, viewState: .feed(), rating: 5.8)
                                 }
                                 .simultaneousGesture(TapGesture().onEnded({ _ in
                                     populateOMDBQuery(into: movie)
                                 }))
+                                
+                                
                             }
                         }.frame(maxHeight: .infinity, alignment: .top)
                     }
