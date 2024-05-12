@@ -67,6 +67,7 @@ private func logOutHandler() {
     UserDefaults.standard.removeObject(forKey: "userID")
     UserDefaults.standard.removeObject(forKey: "name")
     UserDefaults.standard.removeObject(forKey: "username")
+    UserDefaults.standard.removeObject(forKey: "cachedRatings")
     // add other stuff
     //change isLoggedIn()
     
@@ -89,12 +90,11 @@ struct ProfileScreen: View {
                         }) {
                             Image(systemName: "rectangle.portrait.and.arrow.forward")
                                 .foregroundColor(.red).padding(.horizontal, 20)
-                        }
-                        
-                    }.sheet(isPresented: $isModalPresented, content: {
-                        LogoutConfirmationModal(isModalPresented: $isModalPresented, isLoggedIn: isLoggedIn)
-                            .presentationDetents([.fraction(0.3)])
-                    })
+                        }.sheet(isPresented: $isModalPresented, content: {
+                            LogoutConfirmationModal(isModalPresented: $isModalPresented, isLoggedIn: isLoggedIn)
+                                .presentationDetents([.fraction(0.3)])
+                        })
+                    }
                     
                     HStack{
                         Image(systemName: "person.circle")

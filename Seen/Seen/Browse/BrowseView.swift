@@ -39,7 +39,7 @@ struct BrowseView: View {
         }
     }
     
-    private func populateOMDBQuery(into movie: MovieDetailsModel, withoutYear: Bool = false) {
+    func populateOMDBQuery(into movie: MovieDetailsModel, withoutYear: Bool = false) {
         /**
          * TODO: Make a server call instead which then calls the OMDB API
          */
@@ -71,12 +71,12 @@ struct BrowseView: View {
                     if successfulAppend != 1 {
                         if successfulAppend == 0 {
                             if withoutYear {
-                                fatalError("ODMB data was improper")
+                                print("ODMB data was improper")
                                 return
                             }
                             populateOMDBQuery(into: movie, withoutYear: true)
                         }
-                        fatalError("Unable to process OMDB data")
+                        print("Unable to process OMDB data")
                     }
                 }
             } catch {

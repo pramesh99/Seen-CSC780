@@ -225,6 +225,8 @@ struct SignIn: View {
             UserDefaults.standard.set(docID, forKey: "userID")
             UserDefaults.standard.set(name, forKey: "name")
             UserDefaults.standard.set(username, forKey: "username")
+            let d: [String: Double] = [:]
+            UserDefaults.standard.set(d, forKey: "cachedRatings")
             print("AUTHENTICATED")
             shouldNavigate = true
             path.append("MainView")

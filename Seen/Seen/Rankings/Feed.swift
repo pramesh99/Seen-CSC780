@@ -10,6 +10,8 @@ import Firebase
 
 struct Feed: View {
     @Environment(\.dismiss) var dismiss
+    //state array of movieDetailModels
+    @State private var rankings: [MovieDetailsModel] = []
   
     func fetchData() async {
         do {
@@ -19,8 +21,32 @@ struct Feed: View {
                 .getDocuments()
             // create movieDetailsModel array
             for document in snapshot.documents {
-                print(document.data())
+                // make a new mdm and add it to the array
+                let movieJSON: [String:Any] = [
+                    "id": Int(document.data()["id"] as! String) ?? Int(document.data()["movieID"] as! String) ?? 0,
+                    "title": document.data()["title"] as? String ?? "",
+                    "original_title": document.data()["originalTitle"] ?? "",
+                    "poster_path": document.data()["posterURL"] ?? "",
+                    "release_date": document.data()["releaseYear"] ?? "",
+                    "backdrop_path": document.data()["backdropURL"] ?? ""
+                ]
+                
+                
+                
+//                print("\(movieJSON as AnyObject)")
+                
+                let mmodel = MovieDetailsModel(fromTDMBSearch: movieJSON)
+//                print("\(mmodel as AnyObject)")
+                if let mmodel = MovieDetailsModel(fromTDMBSearch: movieJSON){
+                    print("here")
+                    rankings.append(mmodel)
+                } else {
+                    print("\(mmodel as AnyObject)")
+                }
+
             }
+            print("Done fetching")
+//            print("\(rankings as AnyObject)")
         } catch {
             print("Error: \(error)")
         }
@@ -45,11 +71,17 @@ struct Feed: View {
                             }
                         Spacer()
                     }
-                    
                     ScrollView{
                         VStack{
-                            
-                        }
+                            ForEach(rankings) { movie in
+                                NavigationLink(destination: MovieDetailsView(detailsVM: .constant(movie))) {
+                                    MovieRowView(movieDetailsVM: movie, viewState: .search())
+                                }
+                                .simultaneousGesture(TapGesture().onEnded({ _ in
+                                    populateOMDBQuery(into: movie)
+                                }))
+                            }
+                        }.frame(maxHeight: .infinity, alignment: .top)
                     }
                     
                     Spacer()
@@ -67,6 +99,56 @@ struct Feed: View {
                 }
             }
         }
+    }
+    
+    func populateOMDBQuery(into movie: MovieDetailsModel, withoutYear: Bool = false) {
+        /**
+         * TODO: Make a server call instead which then calls the OMDB API
+         */
+        
+        let escapedQuery = movie.originalTitle.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
+        
+        var request = URLRequest(url: URL(string: "https://www.omdbapi.com/?apikey=\(APIKeys.omdb.rawValue)&type=movie&plot=short&t=\(escapedQuery!)\(withoutYear ? "" : "&y=\(movie.releaseYear!)")")!,
+                                 cachePolicy: .useProtocolCachePolicy,
+                                 timeoutInterval: 10.0)
+        request.httpMethod = "GET"
+
+        let task = URLSession.shared.dataTask(with: request) { data, response, error in
+            if let error = error {
+                fatalError("Error getting response from TMDB. \(error as Any)")
+                return
+            }
+            guard let httpResponse = response as? HTTPURLResponse,
+                  (200...299).contains(httpResponse.statusCode) else {
+                fatalError("Status code error. \(String(describing: response as? HTTPURLResponse))")
+                return
+            }
+            guard let data = data else {
+                fatalError("Could not process data. \(String(describing: data))")
+                return
+            }
+            do {
+                if let result = try JSONSerialization.jsonObject(with: data) as? [String: Any] {
+                    let successfulAppend = movie.append(fromOMDB: result)
+                    if successfulAppend != 1 {
+                        if successfulAppend == 0 {
+                            if withoutYear {
+                                print("ODMB data was improper")
+                                return
+                            }
+                            populateOMDBQuery(into: movie, withoutYear: true)
+                        }
+                        print("Unable to process OMDB data")
+                    }
+                }
+            } catch {
+                fatalError("Could not serialize JSON from data. \(String(describing: data))")
+                return
+            }
+        }
+
+        task.resume()
+
     }
 }
 

@@ -26,11 +26,13 @@ class MovieDetailsModel: ObservableObject, Identifiable {
     var originalTitle: String!
     
     init?(fromTDMBSearch movieJSON: Dictionary<String, Any>) {
+        print("\(movieJSON as AnyObject)")
         guard let id = movieJSON["id"] as? Int,
               let title = movieJSON["title"] as? String,
               let originalTitle = movieJSON["original_title"] as? String,
               let pURL = createTmdbURL(withPath: movieJSON["poster_path"] as? String),
               let releaseDate = movieJSON["release_date"] as? String else {
+            print("RETURNING NIL")
             return nil
         }
         

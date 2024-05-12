@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import Firebase
 
 extension UINavigationController: UIGestureRecognizerDelegate {
     override open func viewDidLoad() {
@@ -28,18 +29,27 @@ struct ViewOffsetKey: PreferenceKey {
 
 struct RatingsModal: View {
     @Binding var isModalPresented: Bool
+    @Binding var rating: Double
+    @State var newRating: Double = 0.0
 
+    var movieModel: MovieDetailsModel
+    
     var body: some View {
         ZStack{
             SystemColors.imageBackgroundColor
                 .edgesIgnoringSafeArea(.all)
             
             VStack {
-                Text("Are you sure you want to log out?")
+                Text("Rate \(movieModel.title)")
                     .font(.title)
                     .foregroundStyle(.white)
                     .multilineTextAlignment(.center)
-                    .padding()
+                    
+                Text("\(newRating, specifier: "%.1f")")
+                    .foregroundStyle(.white)
+                
+                Slider(value: $newRating, in: 0.0...10.0, step: 0.1)
+                                .padding()
                 
                 HStack {
                     Spacer()
@@ -47,26 +57,20 @@ struct RatingsModal: View {
                         // Dismiss the modal
                         isModalPresented = false
                     }
-                    .fontWeight(.bold)
-                    .frame(maxWidth: .infinity, alignment: .center)
-                   
-                    NavigationLink {
-//                        TitleScreen()
-                    } label: {
-                        Text("Log out")
-                            .fontWeight(.bold)
-                            .frame(height: 60)
-                            .frame(maxWidth: 150)
-                            .background(SystemColors.accentColor)
-                            .foregroundColor(.white)
-                            .cornerRadius(10)
-
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    Button("Submit"){
+                        // send rating to db
+                        var d = UserDefaults.standard.dictionary(forKey: "cachedRatings")
+                        let mid = movieModel.id
+                        d![mid!] = newRating
+                        UserDefaults.standard.set(d, forKey: "cachedRatings")
+                        rating = round(newRating * 10) / 10.0
+                        SubmitHandler(movieModel: movieModel, rating: newRating)
+                        isModalPresented = false
                     }
+                    .fontWeight(.bold)
                     .frame(maxWidth: .infinity, alignment: .trailing)
-                    .simultaneousGesture(TapGesture().onEnded{
-                       
-                    })
-                
+                   
                     Spacer()
                 }
                 
@@ -77,18 +81,66 @@ struct RatingsModal: View {
         }
     }
 }
+func toDictionary(movieModel: MovieDetailsModel) -> [String: Any]{
+    var output: [String: Any] = [:]
+    
+    let mirror = Mirror(reflecting: movieModel)
+    for (label, value) in mirror.children {
+        output[label ?? "Unknown"] = value
+        print("\(label ?? "Unknown"): \(value)")
+    }
+    
+//    print("Dictionary version: \(output as AnyObject)")
+    return output
+}
+
+func SubmitHandler(movieModel: MovieDetailsModel, rating: Double) {
+    let d = toDictionary(movieModel: movieModel)
+    sendRating(movieDict: d, rating: rating)
+}
+
+func sendRating(movieDict: [String: Any], rating: Double) {
+    var movieDict: [String: Any] = movieDict
+    let ratingsCollection = Firestore.firestore().collection("Ratings")
+    movieDict["userID"] = UserDefaults.standard.string(forKey: "userID") ?? "MuUwlVs578pYzwLSrsjT"
+    movieDict["created"] = FieldValue.serverTimestamp()
+    movieDict["rating"] = rating
+    var docID: DocumentReference? = nil
+    docID = ratingsCollection.addDocument(data: movieDict) { error in
+        if let error = error {
+            // display error message
+            print("Error: \(error)")
+        } else {
+            print("successfully rated.")
+        }
+    }
+}
+
+
 
 struct MovieDetailsView: View {
     @Environment(\.dismiss) var dismiss
     
+    @State private var isModalPresented = false
     @Binding var detailsVM: MovieDetailsModel
     @State var scrollOffset: CGFloat = 0
+    @State var rating: Double = -1.0
     
 //    let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene
 //    let statusBarHeight = windowScene?.statusBarManager?.statusBarFrame.height ?? 0
 //    let navBarHeight = UINavigationController().navigationBar.bounds.size.height
     let statusBarHeight: CGFloat = 0
     let navBarHeight: CGFloat = 108
+    
+    func checkCache() {
+        let d = UserDefaults.standard.dictionary(forKey: "cachedRatings")
+        print("\(d as AnyObject)")
+        if let val = d?[detailsVM.id] as? Double {
+            rating = val
+        } else {
+            print("make api call")
+        }
+    }
     
     var body: some View {
         ZStack(alignment: .top) {
@@ -172,12 +224,20 @@ struct MovieDetailsView: View {
                     }
                 }
                 .padding(.leading, 18)
+                .onAppear{
+                    checkCache()
+                }
                 Rectangle()
                     .foregroundColor(SystemColors.imageBackgroundColor)
                     .frame(width: UIScreen.main.bounds.width - 32, height: 1)
-                Text("No activity yet.")
-                    .foregroundColor(SystemColors.secondaryColor)
-                    .padding(.top, 16)
+                if rating >= 0.0{
+                    Text("Your rating: \(rating, specifier: "%.1f")")
+                } else {
+                    Text("No activity yet.")
+                        .foregroundColor(SystemColors.secondaryColor)
+                        .padding(.top, 16)
+                }
+                
             }
             Rectangle()
                 .foregroundColor(SystemColors.backgroundColor)
@@ -205,6 +265,7 @@ struct MovieDetailsView: View {
                     .foregroundColor(SystemColors.primaryColor)
             }
             ToolbarItem(placement: .navigationBarTrailing) {
+                
                 HStack {
                     Button {
                         // Add to watchlist
@@ -217,20 +278,27 @@ struct MovieDetailsView: View {
                             guard let propertyName = child.label else { return }
                             print("\(propertyName): \(child.value)")
                         }
+                        isModalPresented = true
                     } label: {
                         HStack(spacing: 5) {
                             Image("Star")
                             Text("Rank")
                                 .fontWeight(.medium)
                                 .foregroundColor(SystemColors.primaryColor)
+                                
                         }
+                        
                         .padding(EdgeInsets(top: 4, leading: 8, bottom: 4, trailing: 16))
                     }
                     .background(SystemColors.accentColor)
                     .cornerRadius(4)
+
                 }
             }
-        }
+        }.sheet(isPresented: $isModalPresented, content: {
+            RatingsModal(isModalPresented: $isModalPresented, rating: $rating, movieModel: detailsVM)
+                .presentationDetents([.fraction(0.3)])
+        })
     }
 }
 

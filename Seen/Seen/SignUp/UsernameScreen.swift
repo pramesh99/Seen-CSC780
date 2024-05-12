@@ -174,6 +174,8 @@ struct UsernameScreen: View {
                     UserDefaults.standard.set(userID, forKey: "userID")
                     UserDefaults.standard.set(name, forKey: "name")
                     UserDefaults.standard.set(UsernameValidate.debouncedText, forKey: "username")
+                    let d: [String: Double] = [:]
+                    UserDefaults.standard.set(d, forKey: "cachedRatings")
                     isLoggedIn.wrappedValue = true
                 } else {
                     print("No document ID")
