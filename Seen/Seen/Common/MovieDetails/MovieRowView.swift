@@ -16,8 +16,8 @@ enum MovieRowViewState: Equatable {
 struct MovieRowView: View {
     let movieDetailsVM: MovieDetailsModel
     let viewState: MovieRowViewState
-//    let ratingMode: Bool
-    let rating: Double
+
+    let rating: String
     
     // Defaults set with bigger sizes
     var imageHeight: CGFloat = 144
@@ -27,7 +27,7 @@ struct MovieRowView: View {
     var titleWeight: Font.InterWeight = .bold
     var quickDetailsSize: CGFloat = 16
     
-    init(movieDetailsVM: MovieDetailsModel, viewState: MovieRowViewState, rating: Double) {
+    init(movieDetailsVM: MovieDetailsModel, viewState: MovieRowViewState, rating: String) {
         self.movieDetailsVM = movieDetailsVM
         self.viewState = viewState
         
@@ -62,6 +62,7 @@ struct MovieRowView: View {
                     self.imageBackgroundRectangle()
                 }
             }
+            
             VStack(alignment: .leading, spacing: 5) {
                 // MARK: Title
                 Text(movieDetailsVM.title)
@@ -111,10 +112,10 @@ struct MovieRowView: View {
                     .frame(maxWidth: .infinity, alignment: .trailing)
                 }
                 .frame(height: self.imageHeight, alignment: .center)
-            } else {
+            } else if self.viewState == .feed() {
                 VStack{
                     HStack{
-                        Text("5.8")
+                        Text(rating)
                     }.frame(maxWidth: .infinity, alignment: .trailing)
                     
                 }.frame(height: self.imageHeight, alignment: .center)
@@ -137,15 +138,15 @@ struct SearchResultRowView_Previews: PreviewProvider {
     static var previews: some View {
         VStack {
             Section("Detail View") {
-                MovieRowView(movieDetailsVM: MockMovieDetailsModel.GirlWithDragonTatoo(.full).detailModel, viewState: .detail(), rating: 5.8)
+                MovieRowView(movieDetailsVM: MockMovieDetailsModel.GirlWithDragonTatoo(.full).detailModel, viewState: .detail(), rating: "5.8")
                     .border(.white)
             }
             Section("Feed View") {
-                MovieRowView(movieDetailsVM: MockMovieDetailsModel.Barbie(.full).detailModel, viewState: .feed(), rating: 5.8)
+                MovieRowView(movieDetailsVM: MockMovieDetailsModel.Barbie(.full).detailModel, viewState: .feed(), rating: "5.8")
                     .border(.white)
             }
             Section("Search View") {
-                MovieRowView(movieDetailsVM: MockMovieDetailsModel.SpiritedAway().detailModel, viewState: .search(), rating: 5.8)
+                MovieRowView(movieDetailsVM: MockMovieDetailsModel.SpiritedAway().detailModel, viewState: .search(), rating: "5.8")
                     .border(.white)
             }
         }

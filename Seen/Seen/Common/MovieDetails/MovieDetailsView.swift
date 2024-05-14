@@ -87,7 +87,6 @@ func toDictionary(movieModel: MovieDetailsModel) -> [String: Any]{
     let mirror = Mirror(reflecting: movieModel)
     for (label, value) in mirror.children {
         output[label ?? "Unknown"] = value
-        print("\(label ?? "Unknown"): \(value)")
     }
     
 //    print("Dictionary version: \(output as AnyObject)")
@@ -112,6 +111,8 @@ func sendRating(movieDict: [String: Any], rating: Double) {
             print("Error: \(error)")
         } else {
             print("successfully rated.")
+            let numRated = UserDefaults.standard.integer(forKey: "numRated")
+            UserDefaults.standard.set(numRated+1, forKey: "numRated")
         }
     }
 }
@@ -134,11 +135,39 @@ struct MovieDetailsView: View {
     
     func checkCache() {
         let d = UserDefaults.standard.dictionary(forKey: "cachedRatings")
-        print("\(d as AnyObject)")
         if let val = d?[detailsVM.id] as? Double {
             rating = val
         } else {
             print("make api call")
+
+//            print("\(detailsVM.id)")
+            if detailsVM.id != nil {
+                let unwrapped = detailsVM.id!
+                print("\(unwrapped)")
+                Firestore.firestore().collection("Ratings")
+                    .whereField("userID", isEqualTo: UserDefaults.standard.string(forKey: "userID") ?? "MuUwlVs578pYzwLSrsjT")
+                    .whereField("id", isEqualTo: "\(unwrapped)")
+                    .getDocuments { (querySnapshot, error) in
+                        if let error = error {
+                            print("Error getting documents: \(error)")
+                        } else {
+                            print("here")
+                            if !querySnapshot!.documents.isEmpty{
+                                print(querySnapshot!.documents[0].data())
+                                if let r = querySnapshot!.documents[0].data()["rating"] as? Double {
+                                    rating = r
+                                    var updated = d
+                                    updated![detailsVM.id] = rating
+                                    UserDefaults.standard.set(updated, forKey: "cachedRatings")
+                                } else {
+                                    print("ERROR GETTING RATING FROM DB")
+                                }
+                            }
+                            print("there")
+
+                        }
+                    }
+            }
         }
     }
     
@@ -178,7 +207,7 @@ struct MovieDetailsView: View {
                     }
                 }
                 .overlay(alignment: .bottom) {
-                    MovieRowView(movieDetailsVM: detailsVM, viewState: .detail(), rating: 5.8)
+                    MovieRowView(movieDetailsVM: detailsVM, viewState: .detail(), rating: "5.9")
                         .padding(.bottom, 16)
                         .background(
                             GeometryReader { proxy in

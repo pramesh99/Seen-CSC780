@@ -12,13 +12,14 @@ struct Feed: View {
     @Environment(\.dismiss) var dismiss
     //state array of movieDetailModels
     @State private var rankings: [MovieDetailsModel] = []
+    @State var combined: [(MovieDetailsModel, String)] = []
     @State var scores: [String] = []
     @State var iterator: Int = 0
   
     func fetchData() async {
         rankings = []
         scores = []
-        iterator = 0
+        combined = []
         do {
             let ratingsCollection = Firestore.firestore().collection("Ratings")
             let snapshot = try await ratingsCollection.whereField("userID", isEqualTo: UserDefaults.standard.string(forKey: "userID") ?? "MuUwlVs578pYzwLSrsjT")
@@ -34,23 +35,19 @@ struct Feed: View {
                     "poster_path": document.data()["posterURL"] ?? "",
                     "release_date": document.data()["releaseYear"] ?? "",
                     "backdrop_path": document.data()["backdropURL"] ?? "",
-                    "rating": document.data()["rating"] ?? -1.0
                 ]
-                
-                let mmodel = MovieDetailsModel(fromTDMBSearch: movieJSON)
-//                print("\(mmodel as AnyObject)")
-                if let mmodel = MovieDetailsModel(fromTDMBSearch: movieJSON){
-                    print("here")
-                    rankings.append(mmodel)
-                    scores.append(movieJSON["rating"] as! String)
-                } else {
-                    print("\(mmodel as AnyObject)")
-                }
 
+                if let mmodel = MovieDetailsModel(fromTDMBSearch: movieJSON){
+                    rankings.append(mmodel)
+                    if let score = document.data()["rating"] as? Double {
+                        scores.append(String(format: "%.1f", score))
+                        combined.append((mmodel, String(format: "%.1f", score)))
+                    }
+                }
             }
             print("Done fetching")
-//            print("\(rankings as AnyObject)")
-            print("\(scores as AnyObject)")
+            UserDefaults.standard.set(scores.count, forKey: "numRated")
+            
         } catch {
             print("Error: \(error)")
         }
@@ -77,15 +74,14 @@ struct Feed: View {
                     }
                     ScrollView{
                         VStack{
-                            ForEach(rankings) { movie in
-                                NavigationLink(destination: MovieDetailsView(detailsVM: .constant(movie))) {
-                                    MovieRowView(movieDetailsVM: movie, viewState: .feed(), rating: 5.8)
+                            ForEach(combined.indices, id: \.self) { index in
+                                let movie = combined[index]
+                                NavigationLink(destination: MovieDetailsView(detailsVM: .constant(movie.0))) {
+                                    MovieRowView(movieDetailsVM: movie.0, viewState: .feed(), rating: movie.1)
                                 }
                                 .simultaneousGesture(TapGesture().onEnded({ _ in
-                                    populateOMDBQuery(into: movie)
+                                    populateOMDBQuery(into: movie.0)
                                 }))
-                                
-                                
                             }
                         }.frame(maxHeight: .infinity, alignment: .top)
                     }

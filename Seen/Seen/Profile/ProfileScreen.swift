@@ -68,15 +68,56 @@ private func logOutHandler() {
     UserDefaults.standard.removeObject(forKey: "name")
     UserDefaults.standard.removeObject(forKey: "username")
     UserDefaults.standard.removeObject(forKey: "cachedRatings")
+    UserDefaults.standard.removeObject(forKey: "numRated")
     // add other stuff
     //change isLoggedIn()
-    
+}
+
+private func getBookmarked(){
+    bookmarked = []
+    scores = []
+    combined = []
+    do {
+        let ratingsCollection = Firestore.firestore().collection("Ratings")
+        let snapshot = try await ratingsCollection.whereField("userID", isEqualTo: UserDefaults.standard.string(forKey: "userID") ?? "MuUwlVs578pYzwLSrsjT")
+            .order(by: "created", descending: true)
+            .getDocuments()
+        // create movieDetailsModel array
+        for document in snapshot.documents {
+            // make a new mdm and add it to the array
+            let movieJSON: [String:Any] = [
+                "id": Int(document.data()["id"] as! String) ?? Int(document.data()["movieID"] as! String) ?? 0,
+                "title": document.data()["title"] as? String ?? "",
+                "original_title": document.data()["originalTitle"] ?? "",
+                "poster_path": document.data()["posterURL"] ?? "",
+                "release_date": document.data()["releaseYear"] ?? "",
+                "backdrop_path": document.data()["backdropURL"] ?? "",
+            ]
+
+            if let mmodel = MovieDetailsModel(fromTDMBSearch: movieJSON){
+                rankings.append(mmodel)
+                if let score = document.data()["rating"] as? Double {
+                    scores.append(String(format: "%.1f", score))
+                    combined.append((mmodel, String(format: "%.1f", score)))
+                }
+            }
+        }
+        print("Done fetching")
+        UserDefaults.standard.set(scores.count, forKey: "numRated")
+        
+    } catch {
+        print("Error: \(error)")
+    }
 }
 
 struct ProfileScreen: View {
     @Environment(\.dismiss) var dismiss
-    @State private var isModalPresented = false
+    
+    @State private var isModalPresented: Bool = false
+    @State private var rankings: [MovieDetailsModel] = []
+    
     var isLoggedIn: Binding<Bool>
+    
     var body: some View {
         NavigationStack{
             ZStack(alignment: .leading){
@@ -119,7 +160,7 @@ struct ProfileScreen: View {
                     HStack {
                         Spacer()
                         VStack {
-                            Text("50")
+                            Text("\(UserDefaults.standard.integer(forKey: "numRated"))")
                                 .font(.title)
                                 .fontWeight(.bold)
                                 .opacity(0.9)
@@ -127,9 +168,12 @@ struct ProfileScreen: View {
                             Text("Movies")
                                 .opacity(0.8)
                         }
+                        .onAppear{
+                            //call function
+                        }
                         Spacer()
                         VStack {
-                            Text("14")
+                            Text("0")
                                 .font(.title)
                                 .fontWeight(.bold)
                                 .opacity(0.9)
@@ -139,7 +183,7 @@ struct ProfileScreen: View {
                         }
                         Spacer()
                         VStack {
-                            Text("20")
+                            Text("0")
                                 .font(.title)
                                 .fontWeight(.bold)
                                 .opacity(0.9)
