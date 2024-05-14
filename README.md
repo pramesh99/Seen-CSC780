@@ -6,12 +6,13 @@ Members: Preetham Ramesh
 
 ## Must Have Features
 - Users can register and sign up
+- User can search for movies using the title
 - User can make a post that includes:
-    - username, movie, ranking, rating, genre
-- Users can like, comment, and delete (their own) posts
+    - movie, ranking, rating, genre
 - Personal profile page
   
 ## Nice to Have Features
+- Users can make make friends with other users
 - Users can see lists of friends and followers
 - Users can find movies from a database and get information
 - Users can browse new and upcoming movies and see what people are saying about them
