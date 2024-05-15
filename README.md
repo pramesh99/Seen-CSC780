@@ -1,6 +1,6 @@
 # Seen-CSC780
 
-Seen is a social media app that allows users to rate and rank movies. Users can make friends and see what others are watching and thinking.
+Seen is an app that allows users to rate and rank movies. In the future, users will be able to make friends and see what others are watching and thinking.
 
 Members: Preetham Ramesh
 
