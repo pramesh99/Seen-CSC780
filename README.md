@@ -9,6 +9,7 @@ Members: Preetham Ramesh
 - User can search for movies using the title
 - User can make a post that includes:
     - movie, ranking, rating, genre
+    - the post will persist even after user logs out
 - Personal profile page
   
 ## Nice to Have Features
